@@ -1,0 +1,39 @@
+name: Update Configs Index
+
+on:
+  push:
+    paths:
+      - 'configs/**'  # Trigger the workflow for changes in the configs directory
+  pull_request:
+    paths:
+      - 'configs/**'
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Update the index.json file
+      - name: Generate index.json
+        run: |
+          files=$(ls configs | grep -E '\.json$' | grep -v 'index.json')
+          echo "Updating index.json with the following files:"
+          echo $files
+          echo $files | jq -R -s -c 'split("\n")[:-1]' > configs/index.json
+
+      # Commit and push the changes if any
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add configs/index.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update index.json"
+            git push
+          fi
