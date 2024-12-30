@@ -20,10 +20,7 @@ jobs:
       # Update the index.json file
       - name: Generate index.json
         run: |
-          files=$(ls configs | grep -E '\.json$' | grep -v 'index.json')
-          echo "Updating index.json with the following files:"
-          echo $files
-          echo $files | jq -R -s -c 'split("\n")[:-1]' > configs/index.json
+          ls configs | grep -E '\.json$' | grep -v 'index.json' | jq -R -s -c 'split("\n")[:-1]' > configs/index.json
 
       # Commit and push the changes if any
       - name: Commit and push changes
